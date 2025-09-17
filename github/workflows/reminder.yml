@@ -1,0 +1,25 @@
+ `yml
+  name: Send Hydration Reminders
+
+  on:
+    schedule:
+      # IMPORTANT: These times are in UTC.
+      # 10:30 AM IST = 05:00 UTC
+      # 5:00 PM IST  = 11:30 UTC
+      # 11:00 PM IST = 17:30 UTC
+      - cron: '30 5   *'
+      - cron: '30 11   *'
+      - cron: '30 17   *'
+
+  jobs:
+    send-reminder:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Send the notification
+          run: |
+            curl -d "Hey Mohit, its time to PEE" \
+                 -H "Title: Hydration Reminder" \
+                 -H "Tags: droplet" \
+                 -H "Cache: yes" \
+                 ntfy.sh/mohit-reminders-qwertz-123
+  `
