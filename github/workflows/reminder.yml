@@ -1,4 +1,4 @@
-  `yml
+   `yml
   name: Send Hydration Reminders
 
   on:
@@ -17,11 +17,11 @@
       steps:
         - name: Send the notification
           run: |
-            curl -d "You have an audio reminder. Tap to play:
-  https://raw.githubusercontent.com/manusharma-wd/my-reminders/main/AIVoiceGenerator_com_17-09-2025T23_18_59
-  _%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%B0%E0%A4%BE.mp3" \
+            curl -d "Hey Mohit, you have a new audio reminder." \
                  -H "Title: Hydration Reminder" \
                  -H "Tags: sound" \
                  -H "Cache: yes" \
+                 -H "Actions: view, Play Audio, https://raw.githubusercontent.com/manusharma-wd/my-reminders
+  /main/AIVoiceGenerator_com_17-09-2025T23_18_59_%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%B0%E0%A4%BE.mp3" \
                  ntfy.sh/mohit-reminders-qwertz-123
   `
