@@ -1,5 +1,5 @@
      `yml
- name: Send Hydration Reminders
+name: Send Hydration Reminders
 
 on:
   schedule:
@@ -15,14 +15,21 @@ jobs:
   send-reminder:
     runs-on: ubuntu-latest
     steps:
-      - name: Send the notification
+      - name: Send notification via ntfy.sh with retries
+        id: ntfy_step
+        continue-on-error: true
         run: |
-          curl -d "Hey Mohit, you have a new audio reminder."
-               -H "Title: Hydration Reminder"
-               -H "Tags: sound"
-               -H "Cache: yes"
-               -H "Actions: view, Play Audio, https://raw.githubusercontent.com/manusharma-wd/my-reminders/main/AIVoiceGenerator_com_17-09-2025T23_18_59_%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%B0%E0%A4%BE.mp3"
-               ntfy.sh/mohit-reminders-qwertz-123 && break
+          max_retries=3
+          delay=60
+          count=0
+          until [ $count -ge $max_retries ]
+          do
+            curl -f -d "Hey Mohit, you have a new audio reminder."
+                 -H "Title: Hydration Reminder"
+                 -H "Tags: sound"
+                 -H "Cache: yes"
+                 -H "Actions: view, Play Audio, https://raw.githubusercontent.com/manusharma-wd/my-reminders/main/AIVoiceGenerator_com_17-09-2025T23_18_59_%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%B0%E0%A4%BE.mp3"
+                 ntfy.sh/mohit-reminders-qwertz-123 && break
             count=$((count+1))
             if [ $count -ge $max_retries ]; then
               echo "All $max_retries attempts failed."
@@ -31,3 +38,22 @@ jobs:
             echo "Attempt $count failed. Retrying in $delay seconds..."
             sleep $delay
           done
+      - name: Send SMS via Vodafone as a fallback
+        if: steps.ntfy_step.outcome == 'failure'
+        run: |
+          curl -X POST "https://api-sandbox.vf-dmp.engineering.vodafone.com/omn/api/smsmessaging/v1/outbound/${{ secrets.VODAFONE_SENDER_ADDRESS }}/requests"
+            --user "${{ secrets.VODAFONE_USERNAME }}:${{ secrets.VODAFONE_PASSWORD }}"
+            -H "Content-Type: application/json"
+            -d '{'
+                  "outboundSMSMessageRequest": {
+                    "address": [
+                      "tel:+918377880750"
+                    ],
+                    "senderAddress": "${{ secrets.VODAFONE_SENDER_ADDRESS }}",
+                    "outboundSMSTextMessage": {
+                      "message": "Hey Mohit, you have a new audio reminder."
+                    }
+                  }
+                }'
+
+                        
