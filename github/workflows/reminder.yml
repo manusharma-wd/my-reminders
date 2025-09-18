@@ -22,4 +22,12 @@ jobs:
                -H "Tags: sound"
                -H "Cache: yes"
                -H "Actions: view, Play Audio, https://raw.githubusercontent.com/manusharma-wd/my-reminders/main/AIVoiceGenerator_com_17-09-2025T23_18_59_%20%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%B0%E0%A4%BE.mp3"
-               ntfy.sh/mohit-reminders-qwertz-123
+               ntfy.sh/mohit-reminders-qwertz-123 && break
+            count=$((count+1))
+            if [ $count -ge $max_retries ]; then
+              echo "All $max_retries attempts failed."
+              exit 1
+            fi
+            echo "Attempt $count failed. Retrying in $delay seconds..."
+            sleep $delay
+          done
