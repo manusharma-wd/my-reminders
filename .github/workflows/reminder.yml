@@ -47,3 +47,10 @@ jobs:
             -d "To=whatsapp:+918377880750" \
             -d "From=whatsapp:${{ secrets.TWILIO_PHONE_NUMBER }}" \
             -d "Body=Hey Mohit, you have a new audio reminder."
+      - name: Send SMS via Vodafone as a fallback
+        if: steps.ntfy_step.outcome == 'failure' && steps.twilio_step.outcome == 'failure'
+        run: |
+          curl -X POST "https://api-sandbox.vf-dmp.engineering.vodafone.com/omn/api/smsmessaging/v1/outbound/${{ secrets.VODAFONE_SENDER_ADDRESS }}/requests" \
+            --user "${{ secrets.VODAFONE_USERNAME }}:${{ secrets.VODAFONE_PASSWORD }}" \
+            -H "Content-Type: application/json" \
+            -d '{ "outboundSMSMessageRequest": { "address": [ "tel:+918377880750" ], "senderAddress": "${{ secrets.VODAFONE_SENDER_ADDRESS }}", "outboundSMSTextMessage": { "message": "Hey Mohit, you have a new audio reminder." } } }'
