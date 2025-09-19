@@ -38,12 +38,12 @@ jobs:
             echo "Attempt $count failed. Retrying in $delay seconds..."
             sleep $delay
           done
-      - name: Send WhatsApp message via Twilio
-        id: twilio_step
+      - name: Send WhatsApp message via Whapi.Cloud
+        id: whapi_step
         continue-on-error: true
         run: |
-          curl -X POST "https://api.twilio.com/2010-04-01/Accounts/${{ secrets.TWILIO_ACCOUNT_SID }}/Messages.json" \
-            --user "${{ secrets.TWILIO_ACCOUNT_SID }}:${{ secrets.TWILIO_AUTH_TOKEN }}" \
-            -d "To=whatsapp:+918377880750" \
-            -d "From=whatsapp:${{ secrets.TWILIO_PHONE_NUMBER }}" \
-            -d "Body=Hey Mohit, you have a new audio reminder."
+          curl -X POST "https://gate.whapi.cloud/messages/text" \
+            -H "accept: application/json" \
+            -H "authorization: Bearer ${{ secrets.WHAPI_TOKEN }}" \
+            -H "content-type: application/json" \
+            -d '{"to":"${{ secrets.WHAPI_TO_NUMBER }}","body":"Hey Mohit, you have a new audio reminder."}'
